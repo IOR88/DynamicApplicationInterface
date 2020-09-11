@@ -17,14 +17,12 @@ from django.contrib import admin
 from django.conf import settings
 from django.urls import path, include
 from rest_framework.schemas import get_schema_view
-from rest_framework.permissions import AllowAny
 from django.views import generic
 from exampleproject.views import BaseView
 from exampleproject.exampleapp import urls as exampleapp_urls
 
 schema_view = get_schema_view(
     title='Example Project API',
-    url='/exampleapp/api/',
     urlconf='exampleproject.exampleapp.urls'
 )
 

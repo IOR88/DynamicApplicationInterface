@@ -37,7 +37,8 @@ setuptools.setup(
         'Django==3.1.1',
         'djangorestframework==3.11.1',
         'django-filter==2.3.0',
-        'PyYAML==5.3.1'
+        'PyYAML==5.3.1',
+        'uritemplate==3.0.1'
     ],
     entry_points='''
         [console_scripts]

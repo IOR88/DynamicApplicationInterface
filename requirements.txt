@@ -2,7 +2,8 @@ asgiref==3.2.10
 Django==3.1.1
 django-filter==2.3.0
 djangorestframework==3.11.1
--e git+git@github.com:IOR88/DynamicApplicationInterface.git@954c0baad6c884efb8ff84a114b8d7c3442f7931#egg=DynamicApplicationInterface
+-e git+git@github.com:IOR88/DynamicApplicationInterface.git@f042857e9fd937ea0e75c1fa1bd1432e369e157b#egg=DynamicApplicationInterface
 pytz==2020.1
 PyYAML==5.3.1
 sqlparse==0.3.1
+uritemplate==3.0.1
