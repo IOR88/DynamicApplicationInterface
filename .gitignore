@@ -1,0 +1,4 @@
+src/db.sqlite3
+*.py[cod]
+*.egg-info/
+*.egg
