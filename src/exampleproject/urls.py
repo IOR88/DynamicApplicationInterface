@@ -20,10 +20,12 @@ from rest_framework.schemas import get_schema_view
 from django.views import generic
 from exampleproject.views import BaseView
 from exampleproject.exampleapp import urls as exampleapp_urls
+from rest_framework import permissions
 
 schema_view = get_schema_view(
     title='Example Project API',
-    urlconf='exampleproject.exampleapp.urls'
+    urlconf='exampleproject.exampleapp.urls',
+    permission_classes=[permissions.AllowAny]
 )
 
 urlpatterns = [

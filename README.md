@@ -5,7 +5,7 @@ Dynamic react application based on OpenAPI and Django REST Framework
 
 1. Install project
 ```bash
-python setup.py install -e
+python setup.py install -e .
 ```
 2. Set up project
 ```bash

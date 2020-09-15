@@ -9,12 +9,69 @@
 
     <link rel="manifest" href="site.webmanifest">
     <link rel="apple-touch-icon" href="icon.png">
-
-
+    <script crossorigin src="https://unpkg.com/react@16/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@16/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script src="https://unpkg.com/browse/lodash@4.17.20/"></script>
 
 
 </head>
 <body>
     <div id="root" class="page"></div>
+    <script type="text/javascript">
+
+        class SchemaModel extends Model {
+
+            constructor(data){
+                super();
+                this.data = data
+            }
+
+            namespace(namespace) {
+                return lodash.get(this.data, `paths.${namespace}`);
+            }
+
+            properties(n) {
+                const namespace = this.namespace(n);
+                //TODO
+            }
+
+            parameters(n) {
+                const namespace = this.namespace(n);
+
+                return lodash.chain(namespace).get('get.parameters').map((p) => {
+                    let {schema} = p;
+                    return schema;
+                }).value();
+
+            }
+        }
+
+
+        class App extends React.Component {
+
+          constructor(props){
+              super(props);
+              this.state = {
+                  resources: null,
+                  data: null,
+              }
+          }
+
+          componentWillMount(){
+              axios
+                  .get('/schema/openapi?format=openapi-json')
+                  .then((response)=>{
+                     this.setState({resources: new SchemaModel(response.data)});
+                  })
+          }
+          render() {
+            return React.createElement('div', null, `Hello`);
+          }
+        }
+
+        ReactDOM.render(React.createElement(App, null, null), document.getElementById('root'));
+
+    </script>
 </body>
 </html>
