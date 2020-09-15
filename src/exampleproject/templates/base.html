@@ -9,22 +9,34 @@
 
     <link rel="manifest" href="site.webmanifest">
     <link rel="apple-touch-icon" href="icon.png">
-    <script crossorigin src="https://unpkg.com/react@16/umd/react.development.js"></script>
-    <script crossorigin src="https://unpkg.com/react-dom@16/umd/react-dom.development.js"></script>
-    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
-    <script src="https://unpkg.com/browse/lodash@4.17.20/"></script>
+    <script crossorigin type="text/javascript" src="https://unpkg.com/react@16/umd/react.development.js"></script>
+    <script crossorigin type="text/javascript" src="https://unpkg.com/react-dom@16/umd/react-dom.development.js"></script>
+    <script crossorigin type="text/javascript" src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script crossorigin type="text/javascript" src="https://cdn.jsdelivr.net/npm/lodash@4.17.20/lodash.min.js"></script>
 
 
 </head>
 <body>
     <div id="root" class="page"></div>
     <script type="text/javascript">
+        const lodash = _;
 
-        class SchemaModel extends Model {
+        class SchemaModel {
 
             constructor(data){
-                super();
                 this.data = data
+            }
+
+            getAllNamespacesToRead(){
+                return lodash
+                    .chain(this.data.paths)
+                    .entries()
+                    .filter((entry)=>{
+                        const [resource, value] = entry;
+                        const case1 = !lodash.isNil(value.get),
+                              case2 = resource.indexOf('{id}') === -1;
+                        if(case1 && case2) return entry;
+                }).map((entry) => entry[0]).value()
             }
 
             namespace(namespace) {
@@ -33,18 +45,51 @@
 
             properties(n) {
                 const namespace = this.namespace(n);
-                //TODO
+                return lodash
+                    .chain(namespace)
+                    .get(`get.responses.200.content.[application/json].schema.items.properties`)
+                    .entries()
+                    .map((p) => {
+                        const [name, value] = p;
+                        return {name, ...value};
+                }).value();
             }
 
             parameters(n) {
                 const namespace = this.namespace(n);
 
-                return lodash.chain(namespace).get('get.parameters').map((p) => {
-                    let {schema} = p;
-                    return schema;
+                return lodash
+                    .chain(namespace)
+                    .get('get.parameters')
+                    .map((p) => {
+                        let {schema} = p;
+                        return schema;
                 }).value();
 
             }
+        }
+
+        function Filters(props){
+            const {resources, onResourcesClicked} = props;
+            const data = resources.getAllNamespacesToRead();
+
+            const onClick = (resource)=>{
+                onResourcesClicked(resource);
+            };
+            return data.map((d)=>{
+                return React.createElement('div', {onClick: ()=> onClick(d)}, d);
+            });
+        }
+
+        function Table(props){
+            const {resources, data, aresource} = props;
+            const properties = resources.properties(aresource);
+            return aresource ? data.map((d)=>{
+                const data = properties.map((p)=>{
+                    return [p.name, d[p.name]];
+                });
+                return React.createElement('div', null, JSON.stringify(data));
+            }) : 'no data...'
         }
 
 
@@ -55,7 +100,18 @@
               this.state = {
                   resources: null,
                   data: null,
-              }
+                  aresource: null
+              };
+
+              this.onResourcesClicked = this._onResourcesClicked.bind(this);
+          }
+
+          _onResourcesClicked(resource){
+                axios
+                  .get(`/api/exampleapp${resource}`)
+                  .then((response)=>{
+                     this.setState({data: response.data, aresource: resource});
+                  })
           }
 
           componentWillMount(){
@@ -66,7 +122,10 @@
                   })
           }
           render() {
-            return React.createElement('div', null, `Hello`);
+            return this.state.resources ? React.createElement('div', null,
+                React.createElement(Filters, {resources: this.state.resources, onResourcesClicked: this.onResourcesClicked}, null),
+                React.createElement(Table, {data: this.state.data, resources: this.state.resources, aresource: this.state.aresource}, null)
+            ): 'loading...';
           }
         }
 
